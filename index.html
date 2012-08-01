@@ -1,0 +1,224 @@
+
+<html>
+	
+	<head>
+		<title>Minesweeper 1.0</title>
+		
+		<link rel="stylesheet" type="text/css" href="blueprint/screen.css" />
+		<link rel="stylesheet" type="text/css" href="minesweeper.css" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<link rel="stylesheet" type="text/css" href="buttons.css" />
+		
+		<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> -->
+		<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="jquery.tools.min.js"></script>
+		<script type="text/javascript" src="minesweeper.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+
+				/// Methods
+				
+				var setMineOptionCount = function(gridValue)
+				{
+					var optCount = 6;
+					var normalizer = 100;
+					
+					var maxMineCount = gridValue*gridValue;
+					
+					optCount = (optCount < maxMineCount) ? optCount : maxMineCount - 1;
+
+					while (normalizer > maxMineCount/optCount)
+						normalizer = normalizer/10;					
+				    
+					var divValue = Math.floor(maxMineCount/optCount/normalizer)*normalizer;
+					$("#selMineCount").children().remove();
+					for (var i=1; i<=optCount; i++)
+					{
+						var opt = "<option>"+ divValue*i +"</option>";
+						$("#selMineCount").append(opt);
+					}
+				}
+				
+				/// Set Up Overlays
+				var gameOver = $("#gameOverOverlay").overlay({
+						mask: {
+							color: '#000000',
+							loadSpeed: 500,
+							closeSpeed: 0,
+							opacity: 0.5
+						},
+						top: '30%',
+						closeOnClick: false
+				});
+				
+				var newGame = $("#newGameOverlay").overlay({
+						mask: {
+							color: '#000000',
+							loadSpeed: 500,
+							closeSpeed: 0,
+							opacity: 0.5
+						},
+						top: '30%',
+						closeOnClick: true
+				});				
+
+				var notWon = $("#notWonOverlay").overlay({
+						mask: {
+							color: '#000000',
+							loadSpeed: 500,
+							closeSpeed: 0,
+							opacity: 0.5
+						},
+						top: '30%',
+						closeOnClick: true
+				});	
+				
+				var wonGame = $("#wonOverlay").overlay({
+						mask: {
+							color: '#000000',
+							loadSpeed: 500,
+							closeSpeed: 0,
+							opacity: 0.5
+						},
+						top: '30%',
+						closeOnClick: true
+				});					
+
+				/// Events
+				
+				$(".btnNewGame").click(function() {
+					newGame.data('overlay').load();
+				});
+				
+				$("#btnCancel").click(function() {
+					newGame.data('overlay').close();
+				});
+								
+				$(".btnRestart").click(function() {
+					_mns.ResetGrid();
+					notWon.data('overlay').close();
+					wonGame.data('overlay').close();
+					gameOver.data('overlay').close();
+				});
+				
+				$("#btnContinue").click(function() {
+					notWon.data('overlay').close();
+				});				
+				
+				$("#btnCheat").mousedown(function() {
+					_mns.ShowMines();
+				});
+				
+				$("#btnCheat").mouseup(function() {
+					_mns.HideMines();
+				});
+				
+				$("#btnValidate").click(function() {
+					if (_mns.Validate())
+						wonGame.data('overlay').load();
+					else
+						notWon.data('overlay').load();
+					
+				});
+				
+				$("#btnStart").click(function() {
+					 _mns.ResetGrid($("#selGridSize").val(), $("#selMineCount").val());
+					 newGame.data('overlay').close();
+				});				
+												
+				$("#selGridSize").change(function() {
+					setMineOptionCount($(this).val());
+				});
+				
+				
+				/// Document Setup
+				
+				setMineOptionCount($("#selGridSize").val());
+			    
+			    var _mns = new Minesweeper({
+							// gridMax: 2,
+							// mineCount: 1,			    	
+							gridMax: $("#selGridSize").val(),
+							mineCount: $("#selMineCount").val(),
+							gridContainer: "#mineWrapper",
+							mineTrigger: function() {
+								gameOver.data('overlay').load();
+								_mns.ShowMines();
+							}
+					});				
+				
+			});
+		</script>
+	</head>
+	
+	<body>
+		
+		<div class="container">
+			
+			<div id="headerWrapper">
+				<div class="span-10 append-2">
+					<span id="logoContainer">
+						Mine Sweeper
+					</span>
+				</div>
+				<div class="span-11 append-1 last" id="buttonsContainer">
+					<a id="btnCheat" class="awesome medium red">Cheat</a>
+					<a id="btnValidate" class="awesome medium green">Validate</a>
+					<a class="awesome medium orange btnNewGame">New Game</a>
+				</div>
+			</div>
+				
+			<div id="mineWrapper" class="span-16 prepend-4 append-4">
+			</div>
+			
+			<div id="gameOverOverlay" class="span-10 modal">
+				<div>
+					<h3>Game Over!</h3>
+					<a class="awesome medium orange btnNewGame">New Game</a>
+					<a class="awesome medium green btnRestart">Restart</a>
+				</div>
+			</div>
+			
+			<div id="newGameOverlay" class="span-10 modal">
+				<div>
+					<h3>New Game!</h3>
+					<fieldset>
+					<legend>Set Difficulty</legend>
+					<label>Grid Size</label>
+					<select id="selGridSize">
+						<option>2</option>
+						<option>4</option>
+						<option selected="selected">8</option>
+						<option>16</option>
+						<option>32</option>
+					</select>
+					<br>
+					<label>Number of Mines</label>
+					<select id="selMineCount">						
+					</select>
+					</fieldset>
+					<a id="btnStart" class="awesome medium green">Start</a>
+					<a id="btnCancel" class="awesome medium red">Cancel</a>
+				</div>
+			</div>		
+			
+			<div id="notWonOverlay" class="span-10 modal">
+				<div>
+					<h3>You missed a spot...</h3>
+					<a id="btnContinue" class="awesome medium green">Continue</a>
+					<a class="awesome medium orange btnRestart">Restart</a>
+				</div>
+			</div>			
+			
+			<div id="wonOverlay" class="span-10 modal">
+				<div>
+					<h3>Congratulations! You won!</h3>
+					<a class="awesome medium green btnNewGame">New Game</a>
+					<a class="awesome medium orange btnRestart">Restart</a>
+				</div>
+			</div>					
+			
+		</div>
+		
+	</body>
+</html>
