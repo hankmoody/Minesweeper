@@ -38,6 +38,6 @@ TABLE#mineGround
 }
 .cellFlag
 {
-	background: #2B3EE0 url('flag.png') no-repeat center;
+	background: #2B3EE0 url(flag.png) no-repeat center;
 	background-size: 50%;
 }
