@@ -49,3 +49,18 @@ SPAN#logoContainer
 {
 	margin-left: 10px;
 }
+DIV#instructions
+{
+	background: #FFFFFF;
+	opacity: 0.8;
+}
+DIV#instructions UL
+{
+	margin: 30px 27px 38px 18px;
+	font: 12.6pt Helvetica;
+	list-style-type: cjk-ideographic;
+}
+DIV#instructions UL LI
+{
+	margin-bottom: 15px;
+}
